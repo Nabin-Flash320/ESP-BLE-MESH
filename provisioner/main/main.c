@@ -11,24 +11,20 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "sdkconfig.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
 
-#include "BLE_mesh_light_server.h"
+#include "UART_commands.h"
+#include "BLE_mesh_prov_initializer.h"
 
-#include "ble_mesh_example_init.h"
-#include "BLE_mesh_initializer.h"
-
-#define TAG "main"
+#define TAG "PROV-Main"
 
 void app_main(void)
 {
+
     esp_err_t err;
 
     ESP_LOGI(TAG, "Initializing...");
-
-    BLE_mesh_light_lightness_server_initialize();
 
     err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES)
@@ -37,20 +33,5 @@ void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
-
-    // BLE_mesh_lighting_model_intialize();
- 
-    err = bluetooth_init();
-    if (err)
-    {
-        ESP_LOGE(TAG, "esp32_bluetooth_init failed (err %d)", err);
-        return;
-    }
-
-    /* Initialize the Bluetooth Mesh Subsystem */
-    err = ble_mesh_init();
-    if (err)
-    {
-        ESP_LOGE(TAG, "Bluetooth mesh init failed (err %d)", err);
-    }
+    UART_cmd_handler_start();
 }

@@ -1,0 +1,20 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.espIdfPath": "/home/ndj320/esp/v5.3/esp-idf",
+    "idf.pythonInstallPath": "/usr/bin/python3",
+    "idf.openOcdConfigs": [
+        "board/esp32-wrover-kit-3.3v.cfg"
+    ],
+    "idf.port": "/dev/ttyUSB0",
+    "idf.toolsPath": "/home/ndj320/.espressif",
+    "files.associations": {
+        "*.sqlbook": "sql",
+        "*.ndjson": "jsonl",
+        "*.dbclient-js": "javascript",
+        "esp_bt_device.h": "c",
+        "esp_ble_mesh_generic_model_api.h": "c",
+        "esp_ble_mesh_defs.h": "c",
+        "freertos.h": "c"
+    },
+    "idf.flashType": "UART"
+}

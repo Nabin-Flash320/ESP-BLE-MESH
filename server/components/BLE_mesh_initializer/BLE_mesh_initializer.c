@@ -32,7 +32,8 @@ static uint8_t dev_uuid[ESP_BLE_MESH_OCTET16_LEN] = {0x32, 0x10};
 
 static esp_ble_mesh_elem_t elements[] = {
     ESP_BLE_MESH_ELEMENT(0, root_models, ESP_BLE_MESH_MODEL_NONE),
-    ESP_BLE_MESH_ELEMENT(0, light_lightness_server_models, ESP_BLE_MESH_MODEL_NONE),
+    ESP_BLE_MESH_ELEMENT(1, light_lightness_server_models, ESP_BLE_MESH_MODEL_NONE),
+    ESP_BLE_MESH_ELEMENT(2, light_server_hsl_server_models, ESP_BLE_MESH_MODEL_NONE),
 };
 
 static esp_ble_mesh_comp_t composition = {
@@ -87,7 +88,9 @@ static void ble_mesh_provisioning_cb(esp_ble_mesh_prov_cb_event_t event,
         ESP_LOGI(TAG, "ESP_BLE_MESH_NODE_PROV_COMPLETE_EVT");
         prov_complete(param->node_prov_complete.net_idx, param->node_prov_complete.addr,
                       param->node_prov_complete.flags, param->node_prov_complete.iv_index);
-        // BLE_mesh_prov_complete_indicate();
+        
+        ESP_LOG_BUFFER_HEXDUMP(TAG, param->node_prov_complete.net_key, 16, ESP_LOG_ERROR);
+
         break;
     }
     case ESP_BLE_MESH_NODE_PROV_RESET_EVT:

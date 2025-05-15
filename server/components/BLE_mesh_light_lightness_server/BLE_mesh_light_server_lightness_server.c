@@ -1,15 +1,12 @@
 
-#include "math.h"
+#include <math.h>
 
-#include "esp_log.h"
-#include "esp_ble_mesh_networking_api.h"
 #include "esp_ble_mesh_lighting_model_api.h"
-#include "esp_ble_mesh_defs.h" // contains all the opcodes for SIG models
+#include "esp_ble_mesh_networking_api.h"
 
-#include "BLE_mesh_definitions.h"
-#include "BLE_mesh_initializer.h"
+#include "BLE_mesh_light_server.h"
 
-#include "BLE_mesh_light_lightness_server.h"
+static void light_lightness_model_server_state_change_event_processor(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
 
 static esp_ble_mesh_light_lightness_state_t light_lightness_states_server = {
     // The linear lightness corresponds to the actual light intensity emitted by the light source i.e. illuminance measured in lumens/m^2
@@ -58,33 +55,7 @@ static esp_ble_mesh_light_lightness_srv_t light_lightness_server_user_data = {
     .state = &light_lightness_states_server,
 };
 
-static esp_ble_mesh_gen_level_srv_t light_lightness_generic_level_server_user_data = {
-    .rsp_ctrl = {
-        .get_auto_rsp = ESP_BLE_MESH_SERVER_RSP_BY_APP,
-        .set_auto_rsp = ESP_BLE_MESH_SERVER_RSP_BY_APP,
-    },
-    .state = {
-        .level = 0,
-        .target_level = 0,
-        .last_level = 0,
-        .last_delta = 0,
-        .move_start = false,
-        .positive = false,
-    },
-};
-
-static esp_ble_mesh_gen_onoff_srv_t light_lightness_generic_onoff_server_user_data = {
-    .rsp_ctrl = {
-        .get_auto_rsp = ESP_BLE_MESH_SERVER_RSP_BY_APP,
-        .set_auto_rsp = ESP_BLE_MESH_SERVER_RSP_BY_APP,
-    },
-    .state = {
-        .onoff = 0,
-        .target_onoff = 0,
-    },
-};
-
-static void light_lightness_model_setup_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param)
+void BLE_mesh_light_lightness_model_setup_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param)
 {
     ESP_LOGI(__FILE__, "%s", __func__);
     switch (event)
@@ -114,6 +85,53 @@ static void light_lightness_model_setup_server_callback(esp_ble_mesh_lighting_se
         break;
     }
     }
+}
+
+void BLE_mesh_light_server_lightness_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param)
+{
+    ESP_LOGI(__FILE__, "%s", __func__);
+    switch (event)
+    {
+    case ESP_BLE_MESH_LIGHTING_SERVER_STATE_CHANGE_EVT:
+    {
+        ESP_LOGI(__FILE__, "ESP_BLE_MESH_LIGHTING_SERVER_STATE_CHANGE_EVT");
+        light_lightness_model_server_state_change_event_processor(event, param);
+        break;
+    }
+    case ESP_BLE_MESH_LIGHTING_SERVER_RECV_GET_MSG_EVT:
+    {
+        ESP_LOGI(__FILE__, "ESP_BLE_MESH_LIGHTING_SERVER_RECV_GET_MSG_EVT");
+        break;
+    }
+    case ESP_BLE_MESH_LIGHTING_SERVER_RECV_SET_MSG_EVT:
+    {
+        ESP_LOGI(__FILE__, "ESP_BLE_MESH_LIGHTING_SERVER_RECV_SET_MSG_EVT");
+        break;
+    }
+    case ESP_BLE_MESH_LIGHTING_SERVER_RECV_STATUS_MSG_EVT:
+    {
+        ESP_LOGI(__FILE__, "ESP_BLE_MESH_LIGHTING_SERVER_RECV_STATUS_MSG_EVT");
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+}
+
+void *BLE_mesh_light_server_get_lightness_server_data(uint16_t model_id)
+{
+    if (ESP_BLE_MESH_MODEL_ID_LIGHT_LIGHTNESS_SETUP_SRV == model_id)
+    {
+        return &light_lightness_server_setup_user_data;
+    }
+    else if (ESP_BLE_MESH_MODEL_ID_LIGHT_LIGHTNESS_SRV == model_id)
+    {
+        return &light_lightness_server_user_data;
+    }
+
+    return NULL;
 }
 
 static void light_lightness_model_server_state_change_event_processor(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param)
@@ -224,78 +242,4 @@ static void light_lightness_model_server_state_change_event_processor(esp_ble_me
         break;
     }
     }
-}
-
-static void light_lightness_model_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param)
-{
-    ESP_LOGI(__FILE__, "%s", __func__);
-    switch (event)
-    {
-    case ESP_BLE_MESH_LIGHTING_SERVER_STATE_CHANGE_EVT:
-    {
-        ESP_LOGI(__FILE__, "ESP_BLE_MESH_LIGHTING_SERVER_STATE_CHANGE_EVT");
-        light_lightness_model_server_state_change_event_processor(event, param);
-        break;
-    }
-    case ESP_BLE_MESH_LIGHTING_SERVER_RECV_GET_MSG_EVT:
-    {
-        ESP_LOGI(__FILE__, "ESP_BLE_MESH_LIGHTING_SERVER_RECV_GET_MSG_EVT");
-        break;
-    }
-    case ESP_BLE_MESH_LIGHTING_SERVER_RECV_SET_MSG_EVT:
-    {
-        ESP_LOGI(__FILE__, "ESP_BLE_MESH_LIGHTING_SERVER_RECV_SET_MSG_EVT");
-        break;
-    }
-    case ESP_BLE_MESH_LIGHTING_SERVER_RECV_STATUS_MSG_EVT:
-    {
-        ESP_LOGI(__FILE__, "ESP_BLE_MESH_LIGHTING_SERVER_RECV_STATUS_MSG_EVT");
-        break;
-    }
-    default:
-    {
-        break;
-    }
-    }
-}
-
-static void light_lightness_generic_level_model_callback(esp_ble_mesh_generic_server_cb_event_t event, esp_ble_mesh_generic_server_cb_param_t *param)
-{
-    ESP_LOGI(__FILE__, "%s", __func__);
-}
-
-static void light_lightness_generic_onoff_model_callback(esp_ble_mesh_generic_server_cb_event_t event, esp_ble_mesh_generic_server_cb_param_t *param)
-{
-    ESP_LOGI(__FILE__, "%s", __func__);
-}
-
-void BLE_mesh_light_lightness_server_initialize()
-{
-    // Register callback for light lightneess server.
-    ble_mesh_register_sig_lighting_model_user_args(
-        1,
-        ESP_BLE_MESH_MODEL_ID_LIGHT_LIGHTNESS_SETUP_SRV,
-        light_lightness_model_setup_server_callback,
-        &light_lightness_server_setup_user_data);
-
-    // Register callback for light lightneess setup server.
-    ble_mesh_register_sig_lighting_model_user_args(
-        1,
-        ESP_BLE_MESH_MODEL_ID_LIGHT_LIGHTNESS_SRV,
-        light_lightness_model_server_callback,
-        &light_lightness_server_user_data);
-
-    // Register callback for light lightnesss' generic level sensor
-    ble_mesh_register_sig_generic_model_user_args(
-        1,
-        ESP_BLE_MESH_MODEL_ID_GEN_LEVEL_SRV,
-        light_lightness_generic_level_model_callback,
-        &light_lightness_generic_level_server_user_data);
-
-    // Register callback for light lightnesss' generic onoff sensor
-    ble_mesh_register_sig_generic_model_user_args(
-        1,
-        ESP_BLE_MESH_MODEL_ID_GEN_ONOFF_SRV,
-        light_lightness_generic_onoff_model_callback,
-        &light_lightness_generic_onoff_server_user_data);
 }

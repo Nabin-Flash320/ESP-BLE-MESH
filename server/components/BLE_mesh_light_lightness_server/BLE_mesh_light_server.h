@@ -1,0 +1,35 @@
+
+#ifndef _BLE_MESH_LIGHT_LIGHTNESS_SERVER_H_
+#define _BLE_MESH_LIGHT_LIGHTNESS_SERVER_H_
+
+#include "esp_ble_mesh_generic_model_api.h"
+#include "esp_ble_mesh_lighting_model_api.h"
+
+void BLE_mesh_light_lightness_server_initialize();
+
+// Generic on/off server model callback
+void BLE_mesh_light_server_generic_on_off_model_callback(esp_ble_mesh_generic_server_cb_event_t event, esp_ble_mesh_generic_server_cb_param_t *param);
+void *BLE_mesh_light_server_get_generic_on_off_server_data();
+
+// Generic level server model callback
+void BLE_mesh_light_lightness_generic_level_model_callback(esp_ble_mesh_generic_server_cb_event_t event, esp_ble_mesh_generic_server_cb_param_t *param);
+void *BLE_mesh_light_server_get_generic_level_server_data();
+
+// Lightness server model callback
+void BLE_mesh_light_lightness_model_setup_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
+void BLE_mesh_light_server_lightness_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
+void *BLE_mesh_light_server_get_lightness_server_data(uint16_t model_id);
+
+// HSL server model callback
+void BLE_mesh_light_hsl_model_setup_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
+void BLE_mesh_light_hsl_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
+void *BLE_mesh_light_server_get_hsl_server_data(uint16_t model_id);
+
+// Light ctl server model callback
+void BLE_mesh_light_ctl_model_setup_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
+void BLE_mesh_light_ctl_lightness_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
+void BLE_mesh_light_hsl_saturation_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
+void BLE_mesh_light_hsl_hue_server_callback(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
+void *BLE_mesh_light_server_get_light_ctl_server_data(uint16_t model_id);
+
+#endif // _BLE_MESH_LIGHT_LIGHTNESS_SERVER_H_

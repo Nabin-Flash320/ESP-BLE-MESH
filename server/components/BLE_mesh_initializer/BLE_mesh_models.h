@@ -39,13 +39,44 @@ static esp_ble_mesh_model_t root_models[] = {
 // Publication and light lightness server models definitions
 ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_setup_srv_pub, 5, ROLE_NODE);
 ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_srv_pub, 5, ROLE_NODE);
+
 ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_server_generic_level_server_pub, 5, ROLE_NODE);
+
 ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_server_generic_onoff_server_pub, 5, ROLE_NODE);
+
+ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_light_ctl_setup_server_pub, 5, ROLE_NODE);
+ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_light_ctl_server_pub, 5, ROLE_NODE);
+
+ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_light_hsl_setup_server_pub, 5, ROLE_NODE);
+ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_light_hsl_server_pub, 5, ROLE_NODE);
+ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_light_hsl_hue_server_pub, 5, ROLE_NODE);
+ESP_BLE_MESH_MODEL_PUB_DEFINE(light_lightness_light_hsl_saturation_server_pub, 5, ROLE_NODE);
+
 static esp_ble_mesh_model_t light_lightness_server_models[] = {
+    // Controls overall on-off state of the light
+    ESP_BLE_MESH_MODEL_GEN_ONOFF_SRV(&light_lightness_server_generic_onoff_server_pub, NULL),
+
+    // Controls the brightness of the light
+    ESP_BLE_MESH_MODEL_GEN_LEVEL_SRV(&light_lightness_server_generic_level_server_pub, NULL),
+
+    // Standard dimming functionalities
     ESP_BLE_MESH_MODEL_LIGHT_LIGHTNESS_SETUP_SRV(&light_lightness_setup_srv_pub, NULL),
     ESP_BLE_MESH_MODEL_LIGHT_LIGHTNESS_SRV(&light_lightness_srv_pub, NULL),
-    ESP_BLE_MESH_MODEL_GEN_LEVEL_SRV(&light_lightness_server_generic_level_server_pub, NULL),
-    ESP_BLE_MESH_MODEL_GEN_ONOFF_SRV(&light_lightness_server_generic_onoff_server_pub, NULL),
+
+    // Light CTL server models for for cpntriling CCT(color coded temperature) for CW and temperature and delta uv if needed
+    ESP_BLE_MESH_MODEL_LIGHT_CTL_SETUP_SRV(&light_lightness_light_ctl_setup_server_pub, NULL),
+    ESP_BLE_MESH_MODEL_LIGHT_CTL_SRV(&light_lightness_light_ctl_server_pub, NULL),
+
+    // Scene server model(0x1203) optional for saving and recalling predefined light settings
+    // Time server model(0x1200) optional for time-based controlling of light
+};
+
+static esp_ble_mesh_model_t light_server_hsl_server_models[] = {
+    // Light HSL server model for Hue, Saturation and lightness of the RGB channel
+    ESP_BLE_MESH_MODEL_LIGHT_HSL_SETUP_SRV(&light_lightness_light_hsl_setup_server_pub, NULL),
+    ESP_BLE_MESH_MODEL_LIGHT_HSL_SRV(&light_lightness_light_hsl_server_pub, NULL),
+    ESP_BLE_MESH_MODEL_LIGHT_HSL_HUE_SRV(&light_lightness_light_hsl_hue_server_pub, NULL),
+    ESP_BLE_MESH_MODEL_LIGHT_HSL_SAT_SRV(&light_lightness_light_hsl_saturation_server_pub, NULL),
 };
 
 #endif // _BLE_MESH_MODELS_H_

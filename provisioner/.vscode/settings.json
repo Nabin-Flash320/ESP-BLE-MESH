@@ -1,0 +1,32 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.espIdfPath": "/home/ndj320/esp/v5.3/esp-idf",
+    "idf.pythonInstallPath": "/usr/bin/python3",
+    "idf.openOcdConfigs": [
+        "board/esp32h2-ftdi.cfg"
+    ],
+    "idf.port": "/dev/ttyUSB0",
+    "idf.toolsPath": "/home/ndj320/.espressif",
+    "files.associations": {
+        "*.dbclient-js": "javascript",
+        "*.sqlbook": "sql",
+        "*.ndjson": "jsonl",
+        "esp_bt_device.h": "c",
+        "esp_ble_mesh_generic_model_api.h": "c",
+        "esp_ble_mesh_defs.h": "c",
+        "freertos.h": "c",
+        "esp_ble_mesh_config_model_api.h": "c",
+        "esp_bt_main.h": "c",
+        "ble_mesh_prov_definitions.h": "c",
+        "nvs_flash.h": "c",
+        "ble_mesh_prov_initializer.h": "c",
+        "uart_commands.h": "c",
+        "chrono": "c"
+    },
+    "idf.flashType": "UART",
+    "idf.customExtraVars": {
+        "OPENOCD_SCRIPTS": "/home/ndj320/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
+        "ESP_ROM_ELF_DIR": "/home/ndj320/.espressif/tools/esp-rom-elfs/20240305/",
+        "IDF_TARGET": "esp32h2"
+    }
+}

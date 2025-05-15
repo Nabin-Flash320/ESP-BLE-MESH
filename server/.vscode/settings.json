@@ -46,7 +46,7 @@
         "config.h": "c",
         "access.h": "c",
         "ble_mesh_lighting_server_model.h": "c",
-        "ble_mesh_light_lightness_server.h": "c"
+        "BLE_mesh_light_server.h": "c"
     },
     "idf.port": "/dev/ttyACM0",
     "idf.flashType": "UART",
