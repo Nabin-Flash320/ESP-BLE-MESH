@@ -1,13 +1,13 @@
 {
-    "configurations": [
-        {
-            "name": "Linux",
-            "includePath": [
-                "/home/ndj320/esp/v5.3/esp-idf/components/**",
-                "${workspaceFolder}/**"
-            ],
-            "compilerPath": "${config:idf.toolsPath}/tools/riscv32-esp-elf/esp-13.2.0_20240530/riscv32-esp-elf/bin/riscv32-esp-elf-gcc"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "/home/ndj320/esp/v5.3/esp-idf/components/**",
+        "${workspaceFolder}/components/**"
+      ],
+      "compilerPath": "${config:idf.toolsPath}/tools/riscv32-esp-elf/esp-13.2.0_20240530/riscv32-esp-elf/bin/riscv32-esp-elf-gcc"
+    }
+  ],
+  "version": 4
 }

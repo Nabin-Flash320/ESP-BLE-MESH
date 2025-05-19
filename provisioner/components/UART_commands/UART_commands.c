@@ -4,7 +4,7 @@
 #include "driver/uart.h"
 #include "esp_log.h"
 
-#include "BLE_mesh_prov_initializer.h"
+#include "provisioner.h"
 #include "UART_commands.h"
 
 #define TAG "CMD-Handler"
@@ -222,16 +222,7 @@ static void handle_bluetooth_control(const uint8_t *data, size_t *offset)
     {
     case UART_CMD_BLUETOOTH_OPRERATION_START_BLE:
     {
-        esp_err_t err = bluetooth_init();
-        if (err)
-        {
-            ESP_LOGE(TAG, "esp32_bluetooth_init failed (err %d)", err);
-        }
-        break;
-    }
-    case UART_CMD_BLUETOOTH_OPRERATION_START_PROVISIONER:
-    {
-        ble_mesh_prov_init();
+        ESP_ERROR_CHECK(provisioner_init());
         break;
     }
     default:
@@ -269,24 +260,24 @@ static void handle_provisioner_control(const uint8_t *data, size_t *offset)
     ESP_LOGI(TAG, "Rsp req: 0x%X, Operation: 0x%X, payload len: 0x%X", required_response, operation, payload_len);
     if (UART_CMD_PROVISIONER_OPERATION_BEGIN_PROV == operation)
     {
-        ble_mesh_provisioning_begin();
+        provisioner_enable();
     }
     else if (UART_CMD_PROVISIONER_OPERATION_LIST_UNPROV_NODES == operation)
     {
-        ble_mesh_prov_list_unprov_devices();
+        provisioner_log_unprov_dev_info();
     }
     else if (UART_CMD_PROVISIONER_OPERATION_LIST_PROV_NODES == operation)
     {
-        ble_mesh_prov_list_prov_devices();
+        provisioner_log_prov_dev_info();
     }
     else if (UART_CMD_PROVISIONER_OPERATION_ADD_NODE_IDX == operation)
     {
         ESP_LOGI(TAG, "Provisioning device at idx %d", (uint16_t)payload[0]);
-        ble_mesh_provision_start_dev_prov_with_idx((uint16_t)payload[0]);
+        provisioner_add_dev_to_node((uint16_t)payload[0]);
     }
     else if(UART_CMD_PROVISIONER_OPERATION_GET_DEVICE_COMPOSITION == operation)
     {
-        ble_mesh_provision_get_node_composition_data((uint16_t)payload[0]);
+        // ble_mesh_provision_get_node_composition_data((uint16_t)payload[0]);
     }
     else
     {
