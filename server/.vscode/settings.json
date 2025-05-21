@@ -2,8 +2,8 @@
     "idf.adapterTargetName": "esp32h2",
     "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
-        "*.ndjson": "jsonl",
         "*.dbclient-js": "javascript",
+        "*.ndjson": "jsonl",
         "debug.h": "c",
         "ble_mesh_example_init.h": "c",
         "*.inc": "c",
@@ -46,12 +46,18 @@
         "config.h": "c",
         "access.h": "c",
         "ble_mesh_lighting_server_model.h": "c",
-        "BLE_mesh_light_server.h": "c"
+        "BLE_mesh_light_server.h": "c",
+        "chrono": "c",
+        "random": "c"
     },
-    "idf.port": "/dev/ttyACM0",
+    "idf.port": "/dev/ttyUSB0",
     "idf.flashType": "UART",
     "idf.openOcdConfigs": [
-        "interface/ftdi/esp32_devkitj_v1.cfg",
-        "target/esp32s3.cfg"
-    ]
+        "board/esp32-wrover-kit-1.8v.cfg"
+    ],
+    "idf.customExtraVars": {
+        "OPENOCD_SCRIPTS": "/home/ndj320/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
+        "ESP_ROM_ELF_DIR": "/home/ndj320/.espressif/tools/esp-rom-elfs/20240305/",
+        "IDF_TARGET": "esp32"
+    }
 }

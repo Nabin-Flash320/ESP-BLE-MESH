@@ -99,18 +99,18 @@ static void UART_cmd_handler_process_uart_data(uint8_t *data, size_t len)
 
     size_t command_idx = 0;
     uint8_t start_byte = data[command_idx++];
-    // uint8_t checksum = data[len - 1];
+    uint8_t checksum = data[len - 1];
     if (UART_CMD_START_BYTE != start_byte)
     {
         ESP_LOGI(TAG, "Invalid packet");
         return;
     }
 
-    // size_t checksum_calculated = 0;
-    // for (int i = 0; i < len - 1; i++)
-    // {
-    //     checksum_calculated ^= data[i];
-    // }
+    size_t checksum_calculated = 0;
+    for (int i = 0; i < len - 1; i++)
+    {
+        checksum_calculated ^= data[i];
+    }
 
     // if (checksum_calculated != checksum)
     // {

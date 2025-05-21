@@ -54,14 +54,15 @@
         "type_traits": "cpp",
         "esp_ble_mesh_common_api.h": "c"
     },
-    "idf.port": "/dev/ttyUSB0",
+    "idf.port": "/dev/ttyACM1",
     "idf.flashType": "UART",
     "idf.openOcdConfigs": [
-        "board/esp32h2-ftdi.cfg"
+        "interface/ftdi/esp32_devkitj_v1.cfg",
+        "target/esp32s3.cfg"
     ],
     "idf.customExtraVars": {
         "OPENOCD_SCRIPTS": "/home/ndj320/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
         "ESP_ROM_ELF_DIR": "/home/ndj320/.espressif/tools/esp-rom-elfs/20240305/",
-        "IDF_TARGET": "esp32h2"
+        "IDF_TARGET": "esp32s3"
     }
 }

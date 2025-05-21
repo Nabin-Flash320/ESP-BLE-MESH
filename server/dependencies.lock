@@ -23,5 +23,5 @@ direct_dependencies:
 - espressif/led_strip
 - example_init
 manifest_hash: 6b1cafa634e3ce669ca7d95b3422fc742b990c00c74f6752935b133b1ba82983
-target: esp32s3
+target: esp32
 version: 2.0.0

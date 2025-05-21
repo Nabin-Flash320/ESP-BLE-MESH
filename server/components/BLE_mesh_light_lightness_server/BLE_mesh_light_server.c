@@ -8,11 +8,16 @@
 
 #include "BLE_mesh_definitions.h"
 #include "BLE_mesh_initializer.h"
+#include "BLE_mesh_device_controller.h"
 
 #include "BLE_mesh_light_server.h"
 
 void BLE_mesh_light_lightness_server_initialize()
 {
+
+    // Initializes device for working with on/off server
+    BLE_mesh_device_controller_init();
+
     // Register callback for light lightnesss' generic onoff sensor
     void *light_lightness_generic_onoff_server_user_data = BLE_mesh_light_server_get_generic_on_off_server_data();
     ble_mesh_register_sig_generic_model_user_args(
