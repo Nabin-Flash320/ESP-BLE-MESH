@@ -48,7 +48,10 @@
         "ble_mesh_lighting_server_model.h": "c",
         "BLE_mesh_light_server.h": "c",
         "chrono": "c",
-        "random": "c"
+        "random": "c",
+        "pvnr_mgmt.h": "c",
+        "proxy_server.h": "c",
+        "timer.h": "c"
     },
     "idf.port": "/dev/ttyUSB0",
     "idf.flashType": "UART",

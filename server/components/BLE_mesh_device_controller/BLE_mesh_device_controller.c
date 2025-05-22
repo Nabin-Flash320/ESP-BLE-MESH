@@ -37,8 +37,3 @@ int BLE_mesh_device_controllet_change_onoff_state(uint8_t state)
     return 0;
 }
 
-uint8_t BLE_mesh_device_get_onoff_state()
-{
-    return (uint8_t)gpio_get_level(BUILT_IN_GPIO);
-}
-

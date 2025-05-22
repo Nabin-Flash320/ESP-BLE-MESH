@@ -28,8 +28,7 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Initializing...");
 
-    BLE_mesh_light_lightness_server_initialize();
-
+    
     err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES)
     {
@@ -37,17 +36,19 @@ void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
-
+    
     // BLE_mesh_lighting_model_intialize();
- 
+    
     err = bluetooth_init();
     if (err)
     {
         ESP_LOGE(TAG, "esp32_bluetooth_init failed (err %d)", err);
         return;
     }
-
+    
     /* Initialize the Bluetooth Mesh Subsystem */
+    bt_mesh_timer_init();
+    BLE_mesh_light_lightness_server_initialize();
     err = ble_mesh_init();
     if (err)
     {
