@@ -24,6 +24,7 @@ void BLE_mesh_light_lightness_server_initialize()
         1,
         ESP_BLE_MESH_MODEL_ID_GEN_ONOFF_SRV,
         BLE_mesh_light_server_generic_on_off_model_callback,
+        BLE_mesh_light_servert_generic_on_off_server_publication_callback,
         light_lightness_generic_onoff_server_user_data);
 
     // Register callback for light lightnesss' generic level sensor
@@ -32,6 +33,7 @@ void BLE_mesh_light_lightness_server_initialize()
         1,
         ESP_BLE_MESH_MODEL_ID_GEN_LEVEL_SRV,
         BLE_mesh_light_lightness_generic_level_model_callback,
+        NULL,
         light_lightness_generic_level_server_user_data);
 
     // Register callback for light lightneess server.

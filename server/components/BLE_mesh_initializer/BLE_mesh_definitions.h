@@ -25,7 +25,7 @@
 #define ESP_BLE_MESH_VND_MODEL_BME280_PUB_STATUS_OP_CODE ESP_BLE_MESH_MODEL_OP_3(0x03, CID_ESP)
 
 typedef void (*custom_model_callback)(esp_ble_mesh_model_cb_param_t *param, void *user_data);
-typedef void (*custom_model_publication_callback)(esp_ble_mesh_model_t *model, void *user_data);
+typedef void (*model_publication_callback)(esp_ble_mesh_model_t *model, void *user_data);
 
 typedef void (*sig_generic_model_callback)(esp_ble_mesh_generic_server_cb_event_t event, esp_ble_mesh_generic_server_cb_param_t *param);
 typedef void (*sig_lighting_model_callback)(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param);
@@ -37,7 +37,7 @@ typedef struct s_custom_model_user_data_struct
     union
     {
         custom_model_callback custom_model_cb;
-        sig_generic_model_callback sig_generic_model_cb ;
+        sig_generic_model_callback sig_generic_model_cb;
         sig_lighting_model_callback sig_lighting_model_cb;
     } model_cb;
     union
@@ -49,7 +49,7 @@ typedef struct s_custom_model_user_data_struct
     } user_data;
     union
     {
-        custom_model_publication_callback custom_publication_cb;
+        model_publication_callback model_publication_cb;
     } publication_cb;
     void *args;
 } s_custom_model_user_data_struct_t;

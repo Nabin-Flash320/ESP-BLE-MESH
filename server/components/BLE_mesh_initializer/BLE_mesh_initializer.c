@@ -156,26 +156,33 @@ static void ble_mesh_config_server_cb(esp_ble_mesh_cfg_server_cb_event_t event,
         */
         case ESP_BLE_MESH_MODEL_OP_MODEL_PUB_SET:
         {
-            ESP_LOGI(TAG, "ESP_BLE_MESH_MODEL_OP_MODEL_PUB_SET for model id 0x%x to the address 0x%x", param->value.state_change.mod_pub_set.model_id, param->value.state_change.mod_pub_set.pub_addr);
+            ESP_LOGI(TAG, "ESP_BLE_MESH_MODEL_OP_MODEL_PUB_SET for model id 0x%x(CID: 0x%02x) to the address 0x%x", param->value.state_change.mod_pub_set.model_id,
+                     param->value.state_change.mod_pub_set.company_id,
+                     param->value.state_change.mod_pub_set.pub_addr);
 
             esp_ble_mesh_model_t *model = NULL;
             esp_ble_mesh_elem_t *element = esp_ble_mesh_find_element(param->value.state_change.mod_pub_set.element_addr);
             if (element)
             {
-                for (int i = 0; i < element->sig_model_count; i++)
+                if (ESP_BLE_MESH_CID_NVAL == param->value.state_change.mod_pub_set.company_id)
                 {
-                    if (element->sig_models[i].model_id == param->value.state_change.mod_pub_set.model_id)
+                    for (int i = 0; i < element->sig_model_count; i++)
                     {
-                        model = &element->sig_models[i];
+                        if (element->sig_models[i].model_id == param->value.state_change.mod_pub_set.model_id)
+                        {
+                            model = &element->sig_models[i];
+                            break;
+                        }
                     }
                 }
-                if (!model)
+                else
                 {
                     for (int i = 0; i < element->vnd_model_count; i++)
                     {
                         if (element->vnd_models[i].vnd.model_id == param->value.state_change.mod_pub_set.model_id)
                         {
                             model = &element->vnd_models[i];
+                            break;
                         }
                     }
                 }
@@ -183,9 +190,11 @@ static void ble_mesh_config_server_cb(esp_ble_mesh_cfg_server_cb_event_t event,
 
             if (model)
             {
-                uint8_t data[1] = {0x01};
+                ESP_LOGE(TAG, "Publication for model: 0x%02X(%p)", model->model_id, model->pub->msg);
+                uint8_t data[1] = {0};
                 model->pub->msg->data = data;
                 model->pub->msg->len = sizeof(data);
+                // BLE_MESH_MODEL_BUF_LEN
             }
             break;
         }
@@ -195,7 +204,7 @@ static void ble_mesh_config_server_cb(esp_ble_mesh_cfg_server_cb_event_t event,
         */
         case ESP_BLE_MESH_MODEL_OP_MODEL_SUB_ADD:
         {
-            ESP_LOGI(TAG, "ESP_BLE_MESH_MODEL_OP_MODEL_SUB_ADD for model id 0x%x to the address 0x%x", param->value.state_change.mod_sub_add.model_id, param->value.state_change.mod_sub_add.sub_addr);
+            ESP_LOGI(TAG, "Added subscription for model id 0x%x to the address 0x%x", param->value.state_change.mod_sub_add.model_id, param->value.state_change.mod_sub_add.sub_addr);
             esp_ble_mesh_model_subscribe_group_addr(
                 param->value.state_change.mod_sub_add.element_addr,
                 param->value.state_change.mod_sub_add.company_id,
@@ -209,7 +218,7 @@ static void ble_mesh_config_server_cb(esp_ble_mesh_cfg_server_cb_event_t event,
         */
         case ESP_BLE_MESH_MODEL_OP_MODEL_SUB_DELETE:
         {
-            ESP_LOGI(TAG, "ESP_BLE_MESH_MODEL_OP_MODEL_SUB_ADD for model id 0x%x to the address 0x%x", param->value.state_change.mod_sub_delete.model_id, param->value.state_change.mod_sub_delete.sub_addr);
+            ESP_LOGI(TAG, "Deleted subscription for model id 0x%x to the address 0x%x", param->value.state_change.mod_sub_delete.model_id, param->value.state_change.mod_sub_delete.sub_addr);
             esp_ble_mesh_model_unsubscribe_group_addr(
                 param->value.state_change.mod_sub_delete.element_addr,
                 param->value.state_change.mod_sub_delete.company_id,
@@ -274,21 +283,50 @@ static void ble_mesh_custom_model_cb(esp_ble_mesh_model_cb_event_t event,
     */
     case ESP_BLE_MESH_MODEL_PUBLISH_COMP_EVT:
     {
-        ESP_LOGI(TAG, "Publish completed for model id %d with error: %d", param->model_publish_comp.model->vnd.model_id, param->model_publish_comp.err_code);
+        if (CID_ESP != param->model_publish_comp.model->vnd.company_id && 0x00 == param->model_publish_comp.model->vnd.model_id)
+        {
+            ESP_LOGE(TAG, "Publication completed from model id 0x%02X(error: %d)", param->model_publish_comp.model->model_id, param->model_publish_comp.err_code);
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Publication completed for model id 0x%02X(error: %d)", param->model_publish_comp.model->vnd.model_id, param->model_publish_comp.err_code);
+        }
         break;
     }
     /*
-        This event is triggered for custom model if publication timer goes off. For example if publication period is set to 5sec, this event is triggred every 5 sec.
+        This event is triggered for every models if publication timer goes off. For example if publication period is set to 5sec, this event is triggred every 5 sec.
         If pub message is NULL and message len is 0, an error will be thrown.
     */
     case ESP_BLE_MESH_MODEL_PUBLISH_UPDATE_EVT:
     {
         ESP_LOGI(TAG, "ESP_BLE_MESH_MODEL_PUBLISH_UPDATE_EVT");
-        s_custom_model_user_data_struct_t *model_user_args = (s_custom_model_user_data_struct_t *)param->model_publish_update.model->user_data;
-        if (model_user_args && model_user_args->publication_cb.custom_publication_cb)
+
+        // On this condition true, the model is sig model
+        if (CID_ESP != param->model_publish_update.model->vnd.company_id && 0x00 == param->model_publish_update.model->vnd.model_id)
         {
-            model_user_args->publication_cb.custom_publication_cb(param->model_publish_update.model, model_user_args->args);
+            for (int i = 0; i < 10; i++)
+            {
+                if (ble_mesh_sig_custom_model_user_args[i]->model_id == param->model_publish_update.model->model_id)
+                {
+                    model_publication_callback callback = ble_mesh_sig_custom_model_user_args[i]->publication_cb.model_publication_cb;
+                    if (callback)
+                    {
+                        callback(param->model_publish_update.model, ble_mesh_sig_custom_model_user_args[i]->args);
+                    }
+
+                    break;
+                }
+            }
         }
+        else
+        {
+            s_custom_model_user_data_struct_t *model_user_args = (s_custom_model_user_data_struct_t *)param->model_publish_update.model->user_data;
+            if (model_user_args && model_user_args->publication_cb.model_publication_cb)
+            {
+                model_user_args->publication_cb.model_publication_cb(param->model_publish_update.model, model_user_args->args);
+            }
+        }
+
         break;
     }
     case ESP_BLE_MESH_SERVER_MODEL_UPDATE_STATE_COMP_EVT:
@@ -408,7 +446,7 @@ esp_err_t ble_mesh_init(void)
 }
 
 int ble_mesh_register_vendor_model_user_args(uint16_t element_id, uint16_t model_id, custom_model_callback model_callback,
-                                             custom_model_publication_callback publication_callback, void *args)
+                                             model_publication_callback publication_callback, void *args)
 {
     if (element_id >= composition.element_count)
     {
@@ -436,7 +474,7 @@ int ble_mesh_register_vendor_model_user_args(uint16_t element_id, uint16_t model
             memset(model_user_data, 0, sizeof(s_custom_model_user_data_struct_t));
             model_user_data->model_id = model_id;
             model_user_data->model_cb.custom_model_cb = model_callback;
-            model_user_data->publication_cb.custom_publication_cb = publication_callback;
+            model_user_data->publication_cb.model_publication_cb = publication_callback;
             model_user_data->args = NULL;
 
             elements[element_id].vnd_models[i].user_data = (void *)model_user_data;
@@ -474,7 +512,7 @@ int ble_mesh_register_sig_lighting_model_user_args(uint16_t element_id, uint16_t
             memset(model_user_data, 0, sizeof(s_custom_model_user_data_struct_t));
             model_user_data->model_id = model_id;
             model_user_data->model_cb.sig_lighting_model_cb = model_callback;
-            model_user_data->publication_cb.custom_publication_cb = NULL;
+            model_user_data->publication_cb.model_publication_cb = NULL;
             model_user_data->args = NULL;
 
             elements[element_id].sig_models[i].user_data = args;
@@ -492,7 +530,7 @@ int ble_mesh_register_sig_lighting_model_user_args(uint16_t element_id, uint16_t
     return 0;
 }
 
-int ble_mesh_register_sig_generic_model_user_args(uint16_t element_id, uint16_t model_id, sig_generic_model_callback model_callback, void *args)
+int ble_mesh_register_sig_generic_model_user_args(uint16_t element_id, uint16_t model_id, sig_generic_model_callback model_callback, model_publication_callback pub_callback, void *args)
 {
     if (element_id >= composition.element_count)
     {
@@ -520,7 +558,7 @@ int ble_mesh_register_sig_generic_model_user_args(uint16_t element_id, uint16_t 
             memset(model_user_data, 0, sizeof(s_custom_model_user_data_struct_t));
             model_user_data->model_id = model_id;
             model_user_data->model_cb.sig_generic_model_cb = model_callback;
-            model_user_data->publication_cb.custom_publication_cb = NULL;
+            model_user_data->publication_cb.model_publication_cb = pub_callback;
             model_user_data->args = NULL;
 
             elements[element_id].sig_models[i].user_data = args;

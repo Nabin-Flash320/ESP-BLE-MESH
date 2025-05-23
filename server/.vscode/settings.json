@@ -51,7 +51,8 @@
         "random": "c",
         "pvnr_mgmt.h": "c",
         "proxy_server.h": "c",
-        "timer.h": "c"
+        "timer.h": "c",
+        "ble_mesh_device_controller.h": "c"
     },
     "idf.port": "/dev/ttyUSB0",
     "idf.flashType": "UART",

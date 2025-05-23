@@ -10,6 +10,7 @@ void BLE_mesh_light_lightness_server_initialize();
 // Generic on/off server model callback
 void BLE_mesh_light_server_generic_on_off_model_callback(esp_ble_mesh_generic_server_cb_event_t event, esp_ble_mesh_generic_server_cb_param_t *param);
 void *BLE_mesh_light_server_get_generic_on_off_server_data();
+void BLE_mesh_light_servert_generic_on_off_server_publication_callback(esp_ble_mesh_model_t *model, void *user_data);
 
 // Generic level server model callback
 void BLE_mesh_light_lightness_generic_level_model_callback(esp_ble_mesh_generic_server_cb_event_t event, esp_ble_mesh_generic_server_cb_param_t *param);

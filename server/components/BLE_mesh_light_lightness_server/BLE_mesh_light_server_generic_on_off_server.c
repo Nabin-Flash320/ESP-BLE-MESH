@@ -95,6 +95,13 @@ void BLE_mesh_light_server_generic_on_off_model_callback(esp_ble_mesh_generic_se
     }
 }
 
+void BLE_mesh_light_servert_generic_on_off_server_publication_callback(esp_ble_mesh_model_t *model, void *user_data)
+{
+    ESP_LOGE(TAG, "Generic on off publication callback");
+    esp_ble_mesh_gen_onoff_srv_t *server_user_data = (esp_ble_mesh_gen_onoff_srv_t *)model->user_data;
+    ESP_ERROR_CHECK(esp_ble_mesh_model_publish(model, ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_STATUS, sizeof(server_user_data->state.onoff), &server_user_data->state.onoff, ROLE_NODE));
+}
+
 void *BLE_mesh_light_server_get_generic_on_off_server_data()
 {
     BLE_mesh_device_controllet_change_onoff_state(light_lightness_generic_onoff_server_user_data.state.onoff);
@@ -143,6 +150,19 @@ static int ble_mesh_begin_onoff_work(esp_ble_mesh_server_recv_gen_onoff_set_t *o
     return 0;
 }
 
+static void ble_mesh_on_off_state_change_and_update(esp_ble_mesh_gen_onoff_srv_t *server_state)
+{
+    BLE_mesh_device_controllet_change_onoff_state(server_state->state.target_onoff);
+    server_state->state.onoff = server_state->state.target_onoff;
+
+    if (server_state->model->pub->publish_addr == ESP_BLE_MESH_ADDR_UNASSIGNED)
+    {
+        return;
+    }
+
+    ESP_ERROR_CHECK(esp_ble_mesh_model_publish(server_state->model, ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_STATUS, sizeof(server_state->state.onoff), &server_state->state.onoff, ROLE_NODE));
+}
+
 static void ble_mesh_on_off_optional_worker(struct k_work *work)
 {
     esp_ble_mesh_state_transition_t *transition = CONTAINER_OF(work, esp_ble_mesh_state_transition_t, timer.work);
@@ -164,27 +184,28 @@ static void ble_mesh_on_off_optional_worker(struct k_work *work)
         transition->just_started = false;
         if (0x01 == on_off_state->state.target_onoff)
         {
-            BLE_mesh_device_controllet_change_onoff_state(on_off_state->state.target_onoff);
-            on_off_state->state.onoff = on_off_state->state.target_onoff;
+            ble_mesh_on_off_state_change_and_update(on_off_state);
         }
     }
-    
+
     if (transition->counter == 0)
     {
         ESP_LOGI(TAG, "Target on off: %d", on_off_state->state.target_onoff);
         if (0x00 == on_off_state->state.target_onoff)
         {
-            BLE_mesh_device_controllet_change_onoff_state(on_off_state->state.target_onoff);
-            on_off_state->state.onoff = on_off_state->state.target_onoff;
+            ble_mesh_on_off_state_change_and_update(on_off_state);
+            // BLE_mesh_device_controllet_change_onoff_state(on_off_state->state.target_onoff);
+            // on_off_state->state.onoff = on_off_state->state.target_onoff;
+            // ESP_ERROR_CHECK(esp_ble_mesh_model_publish(on_off_state->model, ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_STATUS, sizeof(on_off_state->state.onoff), &on_off_state->state.onoff, ROLE_NODE));
         }
-        
+
         ESP_LOGW(TAG, "Worker operation completed!!");
         k_delayed_work_cancel(&transition->timer);
         k_delayed_work_free((&transition->timer));
         bt_mesh_atomic_clear_bit(transition->flag, ESP_BLE_MESH_SERVER_TRANS_TIMER_START);
         return;
     }
-    
+
     --transition->counter;
     k_delayed_work_submit(&transition->timer, K_MSEC(transition->quo_tt));
 }
